@@ -1,9 +1,10 @@
 from tkinter import *
 
 SCALE=2
-ACTIVE_COLOR = '#f00'
-INACTIVE_COLOR = '#1f1'
-BORDER_COLOR = '#000'
+ACTIVE_FILL = '#f00'
+INACTIVE_FILL = '#1f1'
+DESELECTED_OUTLINE = '#000'
+SELECTED_OUTLINE = '#fff'
 NEIGHBOR_COLOR = '#0000ff'
 ui = None
 
@@ -36,12 +37,13 @@ class hex:
         self.active = False
         self.selected = False
         self.id = None
-        global ui
+        self.outline_color = DESELECTED_OUTLINE
+        self.fill_color = INACTIVE_FILL
 
     def __str__(self):
         return("(" + str(self.r) + ", " + str(self.c) + ")")
 
-    def draw(self, canvas, outline, fill):
+    def draw(self, canvas):
         x_offset = self.c*14
         y_offset = self.r*12
         if self.r%2 == 1: #odd-numbered rows are offset to pack hexagons
@@ -53,27 +55,41 @@ class hex:
             else: #if it's a y-coordinate
                 points[i] = points[i] + y_offset
         points = [x*SCALE for x in points]
-        self.id = canvas.create_polygon(points, outline=outline, fill=fill, width=2)
+        self.id = canvas.create_polygon(points, outline=self.outline_color, fill=self.fill_color)
         canvas.pack(fill=BOTH, expand=1)
 
-    def click(self):
-        if not self.active:
-            self.draw(ui.canvas, BORDER_COLOR, ACTIVE_COLOR)
-            self.active = True
+    def select(self):
+        self.selected=True
+        self.outline_color = SELECTED_OUTLINE
+
+    def deselect(self):
+        self.selected=False
+        self.outline_color = DESELECTED_OUTLINE
+
+    def set_active(self):
+        self.active=True
+        self.fill_color = ACTIVE_FILL
+
+    def set_inactive(self):
+        self.active=False
+        self.fill_color = INACTIVE_FILL
+
+    def toggle_active(self):
+        if self.active:
+            self.set_inactive()
         else:
-            self.draw(ui.canvas, BORDER_COLOR, INACTIVE_COLOR)
-            self.active = False
-        for neighbor in ui.grid.get_neighbors(self):
-            neighbor.draw(ui.canvas, BORDER_COLOR, NEIGHBOR_COLOR)
-            neighbor.active = True
+            self.set_active()
+
 
 
 class hex_grid:
 
     def __init__(self, rows, columns):
+        global ui
         self.rows = rows
         self.columns = columns
         self.grid = []
+        self.selected_hex = None
         for curRow in range(rows):
             row = []
             for curColumn in range(columns):
@@ -83,7 +99,7 @@ class hex_grid:
     def draw(self, canvas):
         for row in self.grid:
             for hex in row:
-                hex.draw(canvas, BORDER_COLOR, INACTIVE_COLOR)
+                hex.draw(canvas)
 
     def get_hex_by_id(self, id):
         for row in self.grid:
@@ -91,6 +107,14 @@ class hex_grid:
                 if item.id == id:
                     return item
         return None
+
+    def click(self, hex):
+        hex.toggle_active()
+        if self.selected_hex != None:
+            self.selected_hex.deselect()
+        hex.select()
+        self.selected_hex = hex
+        self.draw(ui.canvas)
 
     # returns neighbors of given hex starting at top left moving c-clockwise
     def get_neighbors(self, hex):
@@ -124,8 +148,7 @@ def on_click(eventorigin):
     click_x = eventorigin.x
     click_y = eventorigin.y
     print(eventorigin.widget.find_closest(click_x, click_y)[0])
-    clicked_hex = ui.grid.get_hex_by_id(eventorigin.widget.find_closest(click_x, click_y)[0])
-    clicked_hex.click()
+    ui.grid.click(ui.grid.get_hex_by_id(eventorigin.widget.find_closest(click_x, click_y)[0]))
     print(click_x,click_y)
 
 
