@@ -1,8 +1,9 @@
 from tkinter import *
 
 SCALE=2
-click_x = -1
-click_y = -1
+ACTIVE_COLOR = '#f00'
+INACTIVE_COLOR = '#1f1'
+BORDER_COLOR = '#000'
 ui = None
 
 class UI(Frame):
@@ -24,6 +25,7 @@ class UI(Frame):
         otherButton.pack(side=RIGHT, padx=5, pady=5)
         quitButton = Button(self, text="Quit", command=self.quit)
         quitButton.pack(side=RIGHT)
+
 
 class hex:
 
@@ -54,10 +56,10 @@ class hex:
 
     def click(self):
         if not self.active:
-            self.draw(ui.canvas, '#000', '#f00')
+            self.draw(ui.canvas, BORDER_COLOR, ACTIVE_COLOR)
             self.active = True
         else:
-            self.draw(ui.canvas, '#000', '#1f1')
+            self.draw(ui.canvas, BORDER_COLOR, INACTIVE_COLOR)
             self.active = False
 
 
@@ -76,7 +78,7 @@ class hex_grid:
     def draw(self, canvas):
         for row in self.grid:
             for hex in row:
-                hex.draw(canvas, '#000', '#1f1')
+                hex.draw(canvas, BORDER_COLOR, INACTIVE_COLOR)
 
     def get_hex_by_id(self, id):
         for row in self.grid:
@@ -91,9 +93,9 @@ class hex_grid:
             result = result + str([str(hex) for hex in row]) + "\n"
         return result
 
+
 def on_click(eventorigin):
     global ui
-    global click_x, click_y
     click_x = eventorigin.x
     click_y = eventorigin.y
     print(eventorigin.widget.find_closest(click_x, click_y)[0])
