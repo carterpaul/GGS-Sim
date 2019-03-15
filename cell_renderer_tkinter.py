@@ -4,23 +4,24 @@ SCALE=2
 ACTIVE_COLOR = '#f00'
 INACTIVE_COLOR = '#1f1'
 BORDER_COLOR = '#000'
+NEIGHBOR_COLOR = '#0000ff'
 ui = None
 
 class UI(Frame):
 
     def __init__(self):
         super().__init__()
-
-        self.master.title("GGS-Sim")
-        frame = Frame(self, relief=RAISED, borderwidth=1)
-        frame.pack(fill=BOTH)
-
+        self.initUI()
         self.pack(fill=BOTH, expand=True)
 
+    def initUI(self):
+        self.master.title("GGS-Sim")
         self.canvas = Canvas(self)
         self.grid = hex_grid(28,45)
         self.grid.draw(self.canvas)
 
+        frame = Frame(self, relief=RAISED, borderwidth=1)
+        frame.pack(fill=BOTH)
         otherButton=Button(self, text="Other Button")
         otherButton.pack(side=RIGHT, padx=5, pady=5)
         quitButton = Button(self, text="Quit", command=self.quit)
@@ -33,6 +34,7 @@ class hex:
         self.r = r
         self.c = c
         self.active = False
+        self.selected = False
         self.id = None
         global ui
 
@@ -61,6 +63,9 @@ class hex:
         else:
             self.draw(ui.canvas, BORDER_COLOR, INACTIVE_COLOR)
             self.active = False
+        for neighbor in ui.grid.get_neighbors(self):
+            neighbor.draw(ui.canvas, BORDER_COLOR, NEIGHBOR_COLOR)
+            neighbor.active = True
 
 
 class hex_grid:
@@ -87,6 +92,26 @@ class hex_grid:
                     return item
         return None
 
+    # returns neighbors of given hex starting at top left moving c-clockwise
+    def get_neighbors(self, hex):
+        c = hex.c
+        r = hex.r
+        if r%2 == 0:
+            return [self.grid[r-1][c-1],
+                    self.grid[r-1][c],
+                    self.grid[r][c+1],
+                    self.grid[r+1][c],
+                    self.grid[r+1][c-1],
+                    self.grid[r][c-1]]
+        else:
+            return [self.grid[r-1][c],
+                    self.grid[r-1][c+1],
+                    self.grid[r][c+1],
+                    self.grid[r+1][c+1],
+                    self.grid[r+1][c],
+                    self.grid[r][c-1]]
+
+
     def __str__(self):
         result = ""
         for row in self.grid:
@@ -99,7 +124,8 @@ def on_click(eventorigin):
     click_x = eventorigin.x
     click_y = eventorigin.y
     print(eventorigin.widget.find_closest(click_x, click_y)[0])
-    ui.grid.get_hex_by_id(eventorigin.widget.find_closest(click_x, click_y)[0]).click()
+    clicked_hex = ui.grid.get_hex_by_id(eventorigin.widget.find_closest(click_x, click_y)[0])
+    clicked_hex.click()
     print(click_x,click_y)
 
 
