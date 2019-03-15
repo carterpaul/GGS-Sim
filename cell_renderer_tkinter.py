@@ -1,12 +1,13 @@
 from tkinter import *
 
-SCALE=2
+SCALE = 2
 ACTIVE_FILL = '#f00'
 INACTIVE_FILL = '#1f1'
 DESELECTED_OUTLINE = '#000'
 SELECTED_OUTLINE = '#fff'
 NEIGHBOR_COLOR = '#0000ff'
 ui = None
+
 
 class UI(Frame):
 
@@ -18,12 +19,12 @@ class UI(Frame):
     def initUI(self):
         self.master.title("GGS-Sim")
         self.canvas = Canvas(self)
-        self.grid = hex_grid(28,45)
+        self.grid = hex_grid(28, 45)
         self.grid.draw(self.canvas)
 
         frame = Frame(self, relief=RAISED, borderwidth=1)
         frame.pack(fill=BOTH)
-        otherButton=Button(self, text="Other Button")
+        otherButton = Button(self, text="Other Button")
         otherButton.pack(side=RIGHT, padx=5, pady=5)
         quitButton = Button(self, text="Quit", command=self.quit)
         quitButton.pack(side=RIGHT)
@@ -46,32 +47,33 @@ class hex:
     def draw(self, canvas):
         x_offset = self.c*14
         y_offset = self.r*12
-        if self.r%2 == 1: #odd-numbered rows are offset to pack hexagons
+        if self.r % 2 == 1:  # odd-numbered rows are offset to pack hexagons
             x_offset = x_offset + 7
-        points=[7,0,14,4,14,12,7,16,0,12,0,4]
+        points = [7, 0, 14, 4, 14, 12, 7, 16, 0, 12, 0, 4]
         for i in range(len(points)):
-            if i%2 == 0: #if it's an x-coordinate
+            if i % 2 == 0:  # if it's an x-coordinate
                 points[i] = points[i] + x_offset
-            else: #if it's a y-coordinate
+            else:  # if it's a y-coordinate
                 points[i] = points[i] + y_offset
         points = [x*SCALE for x in points]
-        self.id = canvas.create_polygon(points, outline=self.outline_color, fill=self.fill_color)
+        self.id = canvas.create_polygon(points, outline=self.outline_color,
+                                        fill=self.fill_color)
         canvas.pack(fill=BOTH, expand=1)
 
     def select(self):
-        self.selected=True
+        self.selected = True
         self.outline_color = SELECTED_OUTLINE
 
     def deselect(self):
-        self.selected=False
+        self.selected = False
         self.outline_color = DESELECTED_OUTLINE
 
     def set_active(self):
-        self.active=True
+        self.active = True
         self.fill_color = ACTIVE_FILL
 
     def set_inactive(self):
-        self.active=False
+        self.active = False
         self.fill_color = INACTIVE_FILL
 
     def toggle_active(self):
@@ -79,7 +81,6 @@ class hex:
             self.set_inactive()
         else:
             self.set_active()
-
 
 
 class hex_grid:
@@ -110,7 +111,7 @@ class hex_grid:
 
     def click(self, hex):
         hex.toggle_active()
-        if self.selected_hex != None:
+        if self.selected_hex is not None:
             self.selected_hex.deselect()
         hex.select()
         self.selected_hex = hex
@@ -120,7 +121,7 @@ class hex_grid:
     def get_neighbors(self, hex):
         c = hex.c
         r = hex.r
-        if r%2 == 0:
+        if r % 2 == 0:
             return [self.grid[r-1][c-1],
                     self.grid[r-1][c],
                     self.grid[r][c+1],
@@ -135,7 +136,6 @@ class hex_grid:
                     self.grid[r+1][c],
                     self.grid[r][c-1]]
 
-
     def __str__(self):
         result = ""
         for row in self.grid:
@@ -148,8 +148,9 @@ def on_click(eventorigin):
     click_x = eventorigin.x
     click_y = eventorigin.y
     print(eventorigin.widget.find_closest(click_x, click_y)[0])
-    ui.grid.click(ui.grid.get_hex_by_id(eventorigin.widget.find_closest(click_x, click_y)[0]))
-    print(click_x,click_y)
+    ui.grid.click(ui.grid.get_hex_by_id(eventorigin.widget
+                                        .find_closest(click_x, click_y)[0]))
+    print(click_x, click_y)
 
 
 def main():
@@ -157,8 +158,9 @@ def main():
     root = Tk()
     ui = UI()
     root.geometry("1280x720")
-    root.bind("<Button 1>",on_click)
+    root.bind("<Button 1>", on_click)
     root.mainloop()
+
 
 if __name__ == '__main__':
     main()
