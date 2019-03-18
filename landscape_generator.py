@@ -4,6 +4,7 @@ import math
 from random import randint
 
 SEED = randint(0, 1024)
+print("SEED:", SEED)
 
 OCTAVES = 3
 PERSISTENCE = 0.3
@@ -46,7 +47,7 @@ def islandify(heightmap):
     return island
 
 
-def fallout_curve(x,y):
+def fallout_curve(x, y):
     return math.sin(math.pi*(x/IMG_SIZE))*math.sin(math.pi*(y/IMG_SIZE))
 
 
